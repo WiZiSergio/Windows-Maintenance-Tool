@@ -1,200 +1,163 @@
 @echo off
 chcp 65001 >nul  REM Use UTF-8 encoding for better text display
 
-REM =================== LANGUAGE SELECTION ========================
-setlocal EnableDelayedExpansion
-:lang_select
-cls
-echo ======================================================
-echo          WINDOWS MAINTENANCE TOOL V2.9.7 - By Lil_Batti
-echo ======================================================
-echo.
-echo Please select your language / Por favor seleccione idioma:
-echo.
-echo [1] English
-echo [2] Español
-echo.
-set /p lang_choice=Choose (1/2): 
-
-if "%lang_choice%"=="1" (
-    set LANG=EN
-) else if "%lang_choice%"=="2" (
-    set LANG=ES
-) else (
-    echo Invalid selection / Seleccion invalida.
-    timeout /t 2 >nul
-    goto lang_select
-)
-
 REM =================== ELEVATE TO ADMIN ==========================
 if /i not "%~1"=="am_admin" (
-    if "%LANG%"=="EN" (
-        echo(This script requires administrator privileges.
-        echo(Requesting elevation now ... 
-    ) else (
-        echo(Este script requiere privilegios de administrador.
-        echo(Solicitando elevación...
-    )
+    echo(This script requires administrator privileges.
+    echo(Requesting elevation now ...
     powershell start -verb runas '%0' am_admin 
     exit /b
 )
 
-REM =================== LANGUAGE STRINGS ==========================
-REM Define ALL variables for both languages (menu, actions, etc)
-REM (Saves space: only key variables, extend as needed for new features)
-if "%LANG%"=="ES" (
-    set TITLE1=HERRAMIENTA DE MANTENIMIENTO PARA WINDOWS V2.9.7 - Por Lil_Batti
-    set HEADER1=ACTUALIZACIONES DE WINDOWS
-    set OPT1=Actualizar aplicaciones/programas de Windows (Winget upgrade)
-    set HEADER2=CHEQUEOS DE SALUD DEL SISTEMA
-    set OPT2=Buscar archivos dañados (SFC /scannow) [Admin]
-    set OPT3=Comprobar el estado de salud (DISM) [Admin]
-    set OPT4=Restaurar salud de Windows (DISM /RestoreHealth) [Admin]
-    set HEADER3=HERRAMIENTAS DE RED
-    set OPT5=Opciones DNS (Flush/Establecer/Restablecer)
-    set OPT6=Mostrar información de red (ipconfig /all)
-    set OPT7=Reiniciar adaptadores de red
-    set OPT8=Reparación de red - Solucionador automático
-    set HEADER4=LIMPIEZA Y OPTIMIZACIÓN
-    set OPT9=Limpieza de disco (cleanmgr)
-    set OPT10=Escaneo avanzado de errores (CHKDSK) [Admin]
-    set OPT11=Optimización del sistema (Eliminar archivos temporales)
-    set OPT12=Limpieza avanzada y optimización del registro
-    set HEADER5=ASISTENCIA
-    set OPT13=Información de contacto y soporte (Discord)
-    set HEADER6=UTILIDADES Y EXTRAS
-    set OPT20=Mostrar controladores instalados
-    set OPT21=Herramienta de reparación de Windows Update
-    set OPT22=Generar informe completo del sistema
-    set OPT23=Utilidad y restablecimiento de Windows Update y servicios
-    set OPT24=Ver tabla de rutas de red [Avanzado]
-    set OPT14=SALIR
-    set PROMPT1=Ingrese su opción: 
-    set INVALID=Opción invalida, por favor intente de nuevo.
-    set EXITMSG=Saliendo del script...
-    set PAUSESTR=Presione cualquier tecla para continuar...
-    set SFC_SCAN=Buscando archivos dañados (SFC /scannow)...
-    set SFC_DONE=Proceso completado. Presione cualquier tecla para volver al menú.
-    set DISM_CHECK=Comprobando el estado de salud de Windows (DISM /CheckHealth)...
-    set DISM_RESTORE=Restaurando estado de salud de Windows (DISM /RestoreHealth)...
-    set NETINFO=Mostrando información de red...
-    set RESTART_ADAPTERS=Reiniciando adaptadores de red...
-    set RESTARTED=Adaptadores de red reiniciados.
-    set NET_REPAIR_TITLE=Reparación automática de red
-    set NET_REPAIR_STEP1=Paso 1: Renovando la dirección IP...
-    set NET_REPAIR_STEP2=Paso 2: Actualizando configuración DNS...
-    set NET_REPAIR_STEP3=Paso 3: Restableciendo componentes de red...
-    set NET_REPAIR_DONE=La configuración de red ha sido actualizada. Se recomienda reiniciar el sistema para aplicar los cambios.
-    set RESTART_PROMPT=¿Desea reiniciar ahora? (S/N): 
-    set INVALID_INPUT=Entrada inválida. Por favor escriba S o N.
-    set DISK_CLEANUP=Ejecutando limpieza de disco...
-    set CHKDSK_SCAN=Ejecutando escaneo avanzado de errores en todas las unidades...
-    set CHKDSK_DONE=Todas las unidades han sido escaneadas.
-    set DELETE_TEMP_PROMPT=¿Desea eliminar archivos temporales y caché del sistema? (S/N)
-    set DELETE_TEMP_CONFIRM=Escriba S o N: 
-    set DELETE_TEMP=Eliminando archivos temporales y caché del sistema...
-    set DELETE_TEMP_DONE=Archivos temporales eliminados.
-    set OP_CANCEL=Operación cancelada.
-    set REG_OPT=Optimización avanzada del registro
-    set REG_ANALYZING=Analizando el registro de Windows en busca de errores y problemas de rendimiento...
-    set REG_NO_ENTRIES=No se encontraron entradas innecesarias en el registro.
-    set REG_FOUND=Se encontraron %count% posibles problemas de registro:
-    set REG_SAFE_FOUND=Seguros para eliminar (%safe_count% detectados):
-    set REG_DEL_SAFE=Eliminar solo entradas seguras
-    set REG_REVIEW_SAFE=Revisar entradas seguras antes de eliminar
-    set REG_BACKUP=Crear copia de seguridad del registro
-    set REG_RESTORE=Restaurar copia de seguridad del registro
-    set REG_SCAN=Buscar entradas corruptas del registro
-    set REG_CANCEL=Cancelar
-    set REG_DEL_SAFE_DONE=Todas las entradas de registro seleccionadas han sido eliminadas.
-    set REG_NO_SAFE=No se encontraron entradas seguras para eliminar.
-    set REG_DEL_REVIEW=¿Desea eliminarlas todas? (S/N)
-    set REG_BACKUP_DONE=Copia de seguridad creada exitosamente.
-    set REG_BACKUP_LIST=Copias de seguridad disponibles:
-    set REG_BACKUP_PROMPT=Ingrese el nombre de la copia para restaurar:
-    set REG_BACKUP_RESTORED=Copia restaurada exitosamente.
-    set REG_BACKUP_NOT_FOUND=Archivo de copia no encontrado. Verifique el nombre e intente de nuevo.
-    set REG_SCAN_DONE=Escaneo de registro completado. Si se encontraron errores, reinicie su PC.
-    set CONTACT=¿Tiene preguntas o necesita ayuda? Siempre puede contactarme.
-    set DISCORD=Usuario Discord: Lil_Batti
-    set SUPPORT_SERVER=Servidor de soporte: https://discord.gg/bCQqKHGxja
-    set PRESS_ENTER=Presione ENTER para regresar al menú principal.
-    set DRIVER_SAVING=Guardando informe de controladores instalados en el Escritorio
-    set DRIVER_DONE=El informe de controladores ha sido guardado en:
-    set WINUP_REPAIR=Herramienta de reparación de Windows Update [Admin]
-    set WINUP_REPAIR_STOP=Deteniendo servicios relacionados con actualizaciones...
-    set WINUP_REPAIR_RENAME=Renombrando carpetas de caché de actualizaciones...
-    set WINUP_REPAIR_RESTART=Reiniciando servicios...
-    set WINUP_REPAIR_DONE=Los componentes de Windows Update han sido restablecidos.
-    set WINUP_REPAIR_INFO=Puede eliminar manualmente las carpetas renombradas después de reiniciar si todo funciona.
-    set SYSREP_GEN=Generando informes separados del sistema...
-    set SYSREP_SAVING=Los informes han sido guardados en el Escritorio:
-    set WINUP_UTIL_TITLE=Utilidad y restablecimiento de Windows Update y servicios
-    set WINUP_UTIL_MSG=Esta herramienta reiniciará los servicios principales de Windows Update. Asegúrese de que no se estén instalando actualizaciones.
-    set WINUP_UTIL_OPT1=Restablecer servicios de actualización (wuauserv, cryptsvc, appidsvc, bits)
-    set WINUP_UTIL_OPT2=Volver al menú principal
-    set WINUP_UTIL_DONE=Los servicios de actualización han sido reiniciados.
-    set ROUTE_TITLE=Ver tabla de rutas de red [Avanzado]
-    set ROUTE_MSG=Esto muestra cómo maneja su sistema el tráfico de red.
-    set ROUTE_OPT1=Mostrar tabla de rutas en esta ventana
-    set ROUTE_OPT2=Guardar tabla de rutas como archivo de texto en el Escritorio
-    set ROUTE_OPT3=Volver al menú principal
-    set ROUTE_SAVING=Guardando tabla de rutas en:
-    set ROUTE_DONE=Tabla de rutas guardada exitosamente.
-    set ROUTE_ERR=Error al guardar la tabla de rutas.
-    set ROUTE_INPUT=Por favor ingrese 1, 2 o 3.
-    set WINGET_NOT_INSTALLED=Winget no está instalado. Instálelo desde Microsoft Store.
-    set WINGET_MENU1=Actualización de Windows (con Winget)
-    set WINGET_MENU2=Listando actualizaciones disponibles...
-    set WINGET_OPTIONS=Opciones:
-    set WINGET_UPALL=Actualizar todos los paquetes
-    set WINGET_UPSEL=Actualizar paquetes seleccionados
-    set WINGET_CANCEL=Cancelar
-    set WINGET_CHOOSE=Elija una opción:
-    set WINGET_RUNALL=Ejecutando actualización completa...
-    set WINGET_AVAIL=Paquetes disponibles [Copia el ID para actualizar]
-    set WINGET_IDS=Ingrese uno o más IDs de paquete para actualizar
-    set WINGET_EX=Ejemplo: Microsoft.Edge,Spotify.Spotify  use IDs exactos de la lista anterior
-    set WINGET_IDS_PROMPT=IDs: 
-    set WINGET_NOPACK=No se ingresaron IDs de paquete.
-    set WINGET_UPGR=Actualizando
-    set WINGET_OK=Actualización finalizada.
-    set DNS_CLR=Borrando caché DNS...
-    set DNS1=Establecer DNS de Google (8.8.8.8 / 8.8.4.4)
-    set DNS2=Establecer DNS de Cloudflare (1.1.1.1 / 1.0.0.1)
-    set DNS3=Restaurar configuración DNS original
-    set DNS4=Usar DNS personalizado
-    set DNS5=Volver al menú
-    set DNS_CH=Elije una opción: 
-    set DNS_SAVED=Guardando configuración actual de DNS...
-    set DNS_GOOGLE=Aplicando DNS de Google...
-    set DNS_GOOD=DNS de Google aplicado correctamente.
-    set DNS_CF=Aplicando DNS de Cloudflare...
-    set DNS_CF_OK=DNS de Cloudflare aplicado correctamente.
-    set DNS_AUTO=RESTAURAR CONFIGURACIÓN DNS ORIGINAL
-    set DNS_WIFI=Estableciendo DNS de Wi-Fi en automático (DHCP)...
-    set DNS_WIFI_OK=DNS de Wi-Fi restaurado correctamente.
-    set DNS_WIFI_FAIL=No se pudo restaurar DNS de Wi-Fi. Verifique manualmente.
-    set DNS_ETH=Estableciendo DNS de Ethernet en automático (DHCP)...
-    set DNS_ETH_OK=DNS de Ethernet restaurado correctamente.
-    set DNS_ETH_FAIL=No se pudo restaurar DNS de Ethernet. Verifique manualmente.
-    set DNS_DONE=Listo, configuración de DNS restaurada.
-    set DNS_CUSTOM=Ingrese su DNS personalizado
-    set DNS_PRIM=Ingrese DNS primario: 
-    set DNS_SEC=Ingrese DNS secundario (opcional): 
-    set DNS_VAL=Validando direcciones DNS...
-    set DNS_ERR1=[!] ERROR: El DNS primario "%customDNS1%" no es accesible.
-    set DNS_ERR2=Por favor ingrese una dirección DNS válida.
-    set DNS_ERR3=[!] ERROR: El DNS secundario "%customDNS2%" no es accesible.
-    set DNS_ERR4=Se omitirá.
-    set DNS_SET=Estableciendo DNS para Wi-Fi y Ethernet...
-    set DNS_OK=DNS actualizado con éxito:
-    set DNS_PR=Primario: 
-    set DNS_SE=Secundario: 
-) else (
-    REM English - Use previous EN block from above
-    REM ... (Variables already provided in the previous message) ...
-)
+REM =================== STRINGS: ENGLISH ONLY ==========================
+set TITLE1=WINDOWS MAINTENANCE TOOL V2.9.7 - By Lil_Batti
+set HEADER1=WINDOWS UPDATES
+set OPT1=Update Windows Apps / Programs (Winget upgrade)
+set HEADER2=SYSTEM HEALTH CHECKS
+set OPT2=Scan for corrupt files (SFC /scannow) [Admin]
+set OPT3=Windows CheckHealth (DISM) [Admin]
+set OPT4=Restore Windows Health (DISM /RestoreHealth) [Admin]
+set HEADER3=NETWORK TOOLS
+set OPT5=DNS Options (Flush/Set/Reset)
+set OPT6=Show network information (ipconfig /all)
+set OPT7=Restart Network Adapters
+set OPT8=Network Repair - Automatic Troubleshooter
+set HEADER4=CLEANUP & OPTIMIZATION
+set OPT9=Disk Cleanup (cleanmgr)
+set OPT10=Run Advanced Error Scan (CHKDSK) [Admin]
+set OPT11=Perform System Optimization (Delete Temporary Files)
+set OPT12=Advanced Registry Cleanup-Optimization
+set HEADER5=SUPPORT
+set OPT13=Contact and Support information (Discord)
+set HEADER6=UTILITIES & EXTRAS
+set OPT20=Show installed drivers
+set OPT21=Windows Update Repair Tool
+set OPT22=Generate Full System Report
+set OPT23=Windows Update Utility & Service Reset
+set OPT24=View Network Routing Table [Advanced]
+set OPT14=EXIT
+set PROMPT1=Enter your choice: 
+set INVALID=Invalid choice, please try again.
+set EXITMSG=Exiting script...
+set PAUSESTR=Press any key to continue...
+set SFC_SCAN=Scanning for corrupt files (SFC /scannow)...
+set SFC_DONE=Scan completed. Press any key to return to the menu.
+set DISM_CHECK=Checking Windows health status (DISM /CheckHealth)...
+set DISM_RESTORE=Restoring Windows health status (DISM /RestoreHealth)...
+set NETINFO=Displaying Network Information...
+set RESTART_ADAPTERS=Restarting network adapters...
+set RESTARTED=Network adapters restarted.
+set NET_REPAIR_TITLE=Automatic Network Repair
+set NET_REPAIR_STEP1=Step 1: Renewing your IP address...
+set NET_REPAIR_STEP2=Step 2: Refreshing DNS settings...
+set NET_REPAIR_STEP3=Step 3: Resetting network components...
+set NET_REPAIR_DONE=Your network settings have been refreshed. A system restart is recommended for full effect.
+set RESTART_PROMPT=Would you like to restart now? (Y/N): 
+set INVALID_INPUT=Invalid input. Please enter Y or N.
+set DISK_CLEANUP=Running Disk Cleanup...
+set CHKDSK_SCAN=Running advanced error scan on all drives...
+set CHKDSK_DONE=All drives scanned.
+set DELETE_TEMP_PROMPT=Do you want to delete temporary files and system cache? (Y/N)
+set DELETE_TEMP_CONFIRM=Type Y or N: 
+set DELETE_TEMP=Deleting temporary files and system cache...
+set DELETE_TEMP_DONE=Temporary files deleted.
+set OP_CANCEL=Operation cancelled.
+set REG_OPT=Advanced Registry Cleanup & Optimization
+set REG_ANALYZING=Analyzing Windows Registry for errors and performance issues...
+set REG_NO_ENTRIES=No unnecessary registry entries found.
+set REG_FOUND=Found %count% registry issues:
+set REG_SAFE_FOUND=Safe to delete (%safe_count% entries detected):
+set REG_DEL_SAFE=Delete only safe entries
+set REG_REVIEW_SAFE=Review safe entries before deletion
+set REG_BACKUP=Create Registry Backup
+set REG_RESTORE=Restore Registry Backup
+set REG_SCAN=Scan for corrupt registry entries
+set REG_CANCEL=Cancel
+set REG_DEL_SAFE_DONE=All selected registry entries have been deleted.
+set REG_NO_SAFE=No safe entries found for deletion.
+set REG_DEL_REVIEW=Do you want to delete them all? (Y/N)
+set REG_BACKUP_DONE=Backup successfully created.
+set REG_BACKUP_LIST=Available backups:
+set REG_BACKUP_PROMPT=Enter the name of the backup to restore:
+set REG_BACKUP_RESTORED=Backup successfully restored.
+set REG_BACKUP_NOT_FOUND=Backup file not found. Please check the name and try again.
+set REG_SCAN_DONE=Registry scan complete. If errors were found, restart your PC.
+set CONTACT=Do you have any questions or need help? You are always welcome to contact me.
+set DISCORD=Discord-Username: Lil_Batti
+set SUPPORT_SERVER=Support-server: https://discord.gg/bCQqKHGxja
+set PRESS_ENTER=Press ENTER to return to the main menu.
+set DRIVER_SAVING=Saving Installed Driver Report to Desktop
+set DRIVER_DONE=Driver report has been saved to:
+set WINUP_REPAIR=Windows Update Repair Tool [Admin]
+set WINUP_REPAIR_STOP=Stopping update-related services...
+set WINUP_REPAIR_RENAME=Renaming update cache folders...
+set WINUP_REPAIR_RESTART=Restarting services...
+set WINUP_REPAIR_DONE=Windows Update components have been reset.
+set WINUP_REPAIR_INFO=You may delete them manually after reboot if all is working.
+set SYSREP_GEN=Generating Separated System Reports...
+set SYSREP_SAVING=Reports have been saved to Desktop:
+set WINUP_UTIL_TITLE=Windows Update Utility & Service Reset
+set WINUP_UTIL_MSG=This tool will restart core Windows Update services. Make sure no Windows Updates are installing right now.
+set WINUP_UTIL_OPT1=Reset Update Services (wuauserv, cryptsvc, appidsvc, bits)
+set WINUP_UTIL_OPT2=Return to Main Menu
+set WINUP_UTIL_DONE=Update-related services have been restarted.
+set ROUTE_TITLE=View Network Routing Table  [Advanced]
+set ROUTE_MSG=This shows how your system handles network traffic.
+set ROUTE_OPT1=Display routing table in this window
+set ROUTE_OPT2=Save routing table as a text file on Desktop
+set ROUTE_OPT3=Return to Main Menu
+set ROUTE_SAVING=Saving routing table to:
+set ROUTE_DONE=Routing table saved successfully.
+set ROUTE_ERR=Failed to save routing table to file.
+set ROUTE_INPUT=Please enter 1, 2 or 3.
+set WINGET_NOT_INSTALLED=Winget is not installed. Please install it from Microsoft Store.
+set WINGET_MENU1=Windows Update (via Winget)
+set WINGET_MENU2=Listing available upgrades...
+set WINGET_OPTIONS=Options:
+set WINGET_UPALL=Upgrade all packages
+set WINGET_UPSEL=Upgrade selected packages
+set WINGET_CANCEL=Cancel
+set WINGET_CHOOSE=Choose an option:
+set WINGET_RUNALL=Running full upgrade...
+set WINGET_AVAIL=Available Packages [Copy ID to upgrade]
+set WINGET_IDS=Enter one or more package IDs to upgrade
+set WINGET_EX=Example: Microsoft.Edge,Spotify.Spotify  use exact IDs from the list above
+set WINGET_IDS_PROMPT=IDs: 
+set WINGET_NOPACK=No package IDs entered.
+set WINGET_UPGR=Upgrading
+set WINGET_OK=Upgrade finished.
+set DNS_CLR=Clearing DNS Cache...
+set DNS1=Set DNS to Google (8.8.8.8 / 8.8.4.4)
+set DNS2=Set DNS to Cloudflare (1.1.1.1 / 1.0.0.1)
+set DNS3=Restore original DNS settings
+set DNS4=Use your own DNS
+set DNS5=Return to menu
+set DNS_CH=Enter your choice: 
+set DNS_SAVED=Saving current DNS settings...
+set DNS_GOOGLE=Applying Google DNS...
+set DNS_GOOD=Google DNS applied successfully.
+set DNS_CF=Applying Cloudflare DNS...
+set DNS_CF_OK=Cloudflare DNS applied successfully.
+set DNS_AUTO=RESTORE ORIGINAL DNS SETTINGS
+set DNS_WIFI=Setting Wi-Fi DNS to automatic (DHCP)...
+set DNS_WIFI_OK=Wi-Fi DNS successfully restored.
+set DNS_WIFI_FAIL=Could not restore Wi-Fi DNS. Please check manually.
+set DNS_ETH=Setting Ethernet DNS to automatic (DHCP)...
+set DNS_ETH_OK=Ethernet DNS successfully restored.
+set DNS_ETH_FAIL=Could not restore Ethernet DNS. Please check manually.
+set DNS_DONE=Done restoring DNS settings.
+set DNS_CUSTOM=Enter your custom DNS
+set DNS_PRIM=Enter primary DNS: 
+set DNS_SEC=Enter secondary DNS (optional): 
+set DNS_VAL=Validating DNS addresses...
+set DNS_ERR1=[!] ERROR: The primary DNS "%customDNS1%" is not reachable.
+set DNS_ERR2=Please enter a valid DNS address.
+set DNS_ERR3=[!] ERROR: The secondary DNS "%customDNS2%" is not reachable.
+set DNS_ERR4=It will be skipped.
+set DNS_SET=Setting DNS for Wi-Fi and Ethernet...
+set DNS_OK=DNS has been successfully updated:
+set DNS_PR=Primary: 
+set DNS_SE=Secondary: 
 
 REM =================== MAIN MENU ==========================
 :menu
@@ -251,7 +214,10 @@ if exist "%~f0" findstr /b /c:":choice%choice%" "%~f0" >nul || (
 )
 goto choice%choice%
 
-REM =========== WINGET UPGRADE ===========
+REM All actions below use only English variables for messages 
+REM (as provided above), so the entire experience is in English.
+
+REM ------ Winget Upgrade ------
 :choice1
 cls
 setlocal EnableDelayedExpansion
@@ -310,7 +276,6 @@ if "%upopt%"=="2" (
 )
 goto menu
 
-REM =========== SFC ===========
 :choice2
 cls
 echo %SFC_SCAN%
@@ -319,7 +284,6 @@ echo %SFC_DONE%
 pause
 goto menu
 
-REM =========== DISM CHECKHEALTH ===========
 :choice3
 cls
 echo %DISM_CHECK%
@@ -327,7 +291,6 @@ dism /online /cleanup-image /checkhealth
 pause
 goto menu
 
-REM =========== DISM RESTOREHEALTH ===========
 :choice4
 cls
 echo %DISM_RESTORE%
@@ -335,11 +298,11 @@ dism /online /cleanup-image /restorehealth
 pause
 goto menu
 
-REM =========== DNS MENU ===========
 :choice5
 cls
 echo ======================================================
 echo %DNS_CLR%
+ipconfig /flushdns
 echo ======================================================
 echo [1] %DNS1%
 echo [2] %DNS2%
@@ -385,18 +348,18 @@ echo ======================================================
 echo        %DNS_AUTO%
 echo ======================================================
 echo.
-echo [1] %DNS_WIFI%
+echo [Step 1] %DNS_WIFI%
 netsh interface ip set dns name="Wi-Fi" source=dhcp >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [FALLÓ] %DNS_WIFI_FAIL%
+    echo [FAIL] %DNS_WIFI_FAIL%
 ) else (
     echo [OK] %DNS_WIFI_OK%
 )
 echo.
-echo [2] %DNS_ETH%
+echo [Step 2] %DNS_ETH%
 netsh interface ip set dns name="Ethernet" source=dhcp >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [FALLÓ] %DNS_ETH_FAIL%
+    echo [FAIL] %DNS_ETH_FAIL%
 ) else (
     echo [OK] %DNS_ETH_OK%
 )
@@ -454,7 +417,6 @@ echo ===============================================
 pause
 goto choice5
 
-REM =========== NETWORK INFO ===========
 :choice6
 cls
 echo %NETINFO%
@@ -462,7 +424,6 @@ ipconfig /all
 pause
 goto menu
 
-REM =========== RESTART ADAPTERS ===========
 :choice7
 cls
 echo %RESTART_ADAPTERS%
@@ -472,7 +433,6 @@ echo %RESTARTED%
 pause
 goto menu
 
-REM =========== NETWORK REPAIR ===========
 :choice8
 title %NET_REPAIR_TITLE%
 cls
@@ -498,18 +458,11 @@ if /I "%restart%"=="Y" (
     shutdown /r /t 5
 ) else if /I "%restart%"=="N" (
     goto menu
-) else if /I "%restart%"=="S" (
-    shutdown /r /t 5
-) else if /I "%restart%"=="NO" (
-    goto menu
-) else if /I "%restart%"=="SI" (
-    shutdown /r /t 5
 ) else (
     echo %INVALID_INPUT%
     goto askRestart
 )
 
-REM =========== DISK CLEANUP ===========
 :choice9
 cls
 echo %DISK_CLEANUP%
@@ -517,7 +470,6 @@ cleanmgr
 pause
 goto menu
 
-REM =========== CHKDSK ===========
 :choice10
 cls
 echo ===============================================
@@ -534,7 +486,6 @@ echo %CHKDSK_DONE%
 pause
 goto menu
 
-REM =========== DELETE TEMP ===========
 :choice11
 cls
 :confirm_loop
@@ -542,8 +493,6 @@ echo %DELETE_TEMP_PROMPT%
 set /p confirm=%DELETE_TEMP_CONFIRM%
 if /I "%confirm%"=="Y" goto delete_temp
 if /I "%confirm%"=="YES" goto delete_temp
-if /I "%confirm%"=="S" goto delete_temp
-if /I "%confirm%"=="SI" goto delete_temp
 if /I "%confirm%"=="N" (
     echo %OP_CANCEL%
     pause
@@ -566,7 +515,6 @@ echo %DELETE_TEMP_DONE%
 pause
 goto menu
 
-REM =========== REGISTRY TOOLS ===========
 :choice12
 cls
 echo ======================================================
@@ -644,7 +592,6 @@ echo %REG_DEL_REVIEW%
 set /p confirm=
 for %%A in (%confirm%) do set confirm=%%A
 if /I "%confirm%"=="Y" goto delete_safe_entries
-if /I "%confirm%"=="S" goto delete_safe_entries
 echo %OP_CANCEL%
 pause
 goto menu
@@ -681,7 +628,6 @@ echo %REG_SCAN_DONE%
 pause
 goto menu
 
-REM =========== CONTACT / SUPPORT ===========
 :choice13
 cls
 echo.
@@ -697,13 +643,11 @@ echo %PRESS_ENTER%
 pause >nul
 goto menu
 
-REM =========== EXIT ===========
 :choice14
 cls
 echo %EXITMSG%
 exit
 
-REM =========== SHOW DRIVERS ===========
 :choice20
 cls
 echo ===============================================
@@ -716,7 +660,6 @@ echo %USERPROFILE%\Desktop\Installed_Drivers.txt
 pause
 goto menu
 
-REM =========== WINDOWS UPDATE REPAIR ===========
 :choice21
 cls
 echo ===============================================
@@ -790,7 +733,6 @@ if not errorlevel 1 (
 )
 goto :eof
 
-REM =========== SYSTEM REPORT ===========
 :choice22
 cls
 echo ===============================================
@@ -821,7 +763,6 @@ echo.
 pause
 goto menu
 
-REM =========== UPDATE UTILITY & RESET ===========
 :choice23
 cls
 echo ======================================================
@@ -860,7 +801,6 @@ echo [OK] %WINUP_UTIL_DONE%
 pause
 goto menu
 
-REM =========== ROUTING TABLE ===========
 :choice24
 setlocal EnableDelayedExpansion
 cls
