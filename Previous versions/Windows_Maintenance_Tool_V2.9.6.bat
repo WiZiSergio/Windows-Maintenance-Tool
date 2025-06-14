@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul  REM Use UTF-8 encoding for better text display
 
-REM Ensure the script runs with admin privileges
+REM =================== ELEVATE TO ADMIN ==========================
 if /i not "%~1"=="am_admin" (
     echo(This script requires administrator privileges.
     echo(Requesting elevation now ... 
@@ -9,6 +9,7 @@ if /i not "%~1"=="am_admin" (
     exit /b
 )
 
+REM =================== MAIN MENU ==========================
 :menu
 cls
 color 07
@@ -18,30 +19,36 @@ echo           WINDOWS MAINTENANCE TOOL V2.9.6 - By Lil_Batti
 echo ======================================================
 echo.
 
+REM ----- Section 1: Windows Updates -----
 echo      === WINDOWS UPDATES ===
 echo   [1] Update Windows Apps / Programs (Winget upgrade)
 
+REM ----- Section 2: System Health Checks -----
 echo      === SYSTEM HEALTH CHECKS ===
 echo   [2] Scan for corrupt files (SFC /scannow) [Admin]
 echo   [3] Windows CheckHealth (DISM) [Admin]
 echo   [4] Restore Windows Health (DISM /RestoreHealth) [Admin]
 
+REM ----- Section 3: Network Tools -----
 echo      === NETWORK TOOLS ===
 echo   [5] DNS Options (Flush/Set/Reset)
 echo   [6] Show network information (ipconfig /all)
 echo   [7] Restart Network Adapters
 echo   [8] Network Repair - Automatic Troubleshooter
 
+REM ----- Section 4: Cleanup & Optimization -----
 echo      === CLEANUP ^& OPTIMIZATION ===
 echo   [9] Disk Cleanup (cleanmgr)
 echo  [10] Run Advanced Error Scan (CHKDSK) [Admin]
 echo  [11] Perform System Optimization (Delete Temporary Files)
 echo  [12] Advanced Registry Cleanup-Optimization
 
+REM ----- Section 5: Support -----
 echo      === SUPPORT ===
 echo  [13] Contact and Support information (Discord)
 
 echo.
+REM ----- Section 6: Utilities & Extras -----
 echo      === UTILITIES ^& EXTRAS ===
 echo  [20] Show installed drivers
 echo  [21] Windows Update Repair Tool
@@ -55,7 +62,6 @@ echo ------------------------------------------------------
 set /p choice=Enter your choice: 
 if "%choice%"=="22" goto choice22
 if "%choice%"=="23" goto choice23
-
 if "%choice%"=="20" goto choice20
 if exist "%~f0" findstr /b /c:":choice%choice%" "%~f0" >nul || (
     echo Invalid choice, please try again.
@@ -64,7 +70,9 @@ if exist "%~f0" findstr /b /c:":choice%choice%" "%~f0" >nul || (
 )
 goto choice%choice%
 
+REM =================== SECTION 1: WINDOWS UPDATES ===================
 :choice1
+REM -- Windows Updates (Winget) --
 cls
 setlocal EnableDelayedExpansion
 
@@ -137,7 +145,9 @@ if "%upopt%"=="2" (
 
 goto menu
 
+REM =================== SECTION 2: SYSTEM HEALTH CHECKS ===================
 :choice2
+REM -- SFC Scan --
 cls
 echo Scanning for corrupt files (SFC /scannow)...
 sfc /scannow
@@ -145,6 +155,7 @@ pause
 goto menu
 
 :choice3
+REM -- DISM CheckHealth --
 cls
 echo Checking Windows health status (DISM /CheckHealth)...
 dism /online /cleanup-image /checkhealth
@@ -152,13 +163,16 @@ pause
 goto menu
 
 :choice4
+REM -- DISM RestoreHealth --
 cls
 echo Restoring Windows health status (DISM /RestoreHealth)...
 dism /online /cleanup-image /restorehealth
 pause
 goto menu
 
+REM =================== SECTION 3: NETWORK TOOLS ===================
 :choice5
+REM -- DNS Options --
 cls
 echo ======================================================
 echo Clearing DNS Cache...
@@ -184,42 +198,37 @@ goto choice5
 
 REM --- SET GOOGLE DNS ---
 :set_google_dns
+REM -- Set Google DNS --
 echo Saving current DNS settings...
-
 netsh interface ip show config name="Wi-Fi" | findstr "Statically Configured DNS Servers" > %SystemRoot%\Temp\wifi_dns_backup.txt
 netsh interface ip show config name="Ethernet" | findstr "Statically Configured DNS Servers" > %SystemRoot%\Temp\ethernet_dns_backup.txt
-
 echo Applying Google DNS...
-
 netsh interface ip set dns name="Wi-Fi" static 8.8.8.8 primary
 netsh interface ip add dns name="Wi-Fi" 8.8.4.4 index=2
 netsh interface ip set dns name="Ethernet" static 8.8.8.8 primary
 netsh interface ip add dns name="Ethernet" 8.8.4.4 index=2
-
 echo Google DNS applied successfully.
 pause
 goto menu
 
 REM --- SET CLOUDFLARE DNS ---
 :set_cloudflare_dns
+REM -- Set Cloudflare DNS --
 echo Saving current DNS settings...
-
 netsh interface ip show config name="Wi-Fi" | findstr "Statically Configured DNS Servers" > %SystemRoot%\Temp\wifi_dns_backup.txt
 netsh interface ip show config name="Ethernet" | findstr "Statically Configured DNS Servers" > %SystemRoot%\Temp\ethernet_dns_backup.txt
-
 echo Applying Cloudflare DNS...
-
 netsh interface ip set dns name="Wi-Fi" static 1.1.1.1 primary
 netsh interface ip add dns name="Wi-Fi" 1.0.0.1 index=2
 netsh interface ip set dns name="Ethernet" static 1.1.1.1 primary
 netsh interface ip add dns name="Ethernet" 1.0.0.1 index=2
-
 echo Cloudflare DNS applied successfully.
 pause
 goto menu
 
 REM --- RESTORE ORIGINAL DNS SETTINGS ---
 :restore_dns
+REM -- Restore Original DNS Settings --
 cls
 echo ======================================================
 echo        RESTORE ORIGINAL DNS SETTINGS
@@ -250,8 +259,65 @@ echo ------------------------------------------------------
 pause
 goto menu
 
+:custom_dns
+REM -- Set Custom DNS --
+cls
+echo ===============================================
+echo           Enter your custom DNS
+echo ===============================================
+
+:get_dns
+echo.
+set /p customDNS1=Enter primary DNS: 
+set /p customDNS2=Enter secondary DNS (optional): 
+
+cls
+echo ===============================================
+echo           Validating DNS addresses...
+echo ===============================================
+ping -n 1 %customDNS1% >nul
+if errorlevel 1 (
+    echo [!] ERROR: The primary DNS "%customDNS1%" is not reachable.
+    echo Please enter a valid DNS address.
+    pause
+    cls
+    goto get_dns
+)
+
+if not "%customDNS2%"=="" (
+    ping -n 1 %customDNS2% >nul
+    if errorlevel 1 (
+        echo [!] ERROR: The secondary DNS "%customDNS2%" is not reachable.
+        echo It will be skipped.
+        set "customDNS2="
+        pause
+    )
+)
+
+cls
+echo ===============================================
+echo     Setting DNS for Wi-Fi and Ethernet...
+echo ===============================================
+
+REM Wi-Fi
+netsh interface ip set dns name="Wi-Fi" static %customDNS1%
+if not "%customDNS2%"=="" netsh interface ip add dns name="Wi-Fi" %customDNS2% index=2
+
+REM Ethernet
+netsh interface ip set dns name="Ethernet" static %customDNS1%
+if not "%customDNS2%"=="" netsh interface ip add dns name="Ethernet" %customDNS2% index=2
+
+echo.
+echo ===============================================
+echo      DNS has been successfully updated:
+echo        Primary: %customDNS1%
+if not "%customDNS2%"=="" echo        Secondary: %customDNS2%
+echo ===============================================
+pause
+goto choice5
 
 :choice6
+REM -- Show Network Information --
 cls
 echo Displaying Network Information...
 ipconfig /all
@@ -259,6 +325,7 @@ pause
 goto menu
 
 :choice7
+REM -- Restart Network Adapters --
 cls
 echo Restarting network adapters...
 netsh interface set interface "Wi-Fi" admin=disable
@@ -268,6 +335,7 @@ pause
 goto menu
 
 :choice8
+REM -- Network Repair (Automatic Troubleshooter) --
 title Network Repair - Automatic Troubleshooter
 cls
 echo.
@@ -302,8 +370,9 @@ if /I "%restart%"=="Y" (
     goto askRestart
 )
 
-
+REM =================== SECTION 4: CLEANUP & OPTIMIZATION ===================
 :choice9
+REM -- Disk Cleanup --
 cls
 echo Running Disk Cleanup...
 cleanmgr
@@ -311,6 +380,7 @@ pause
 goto menu
 
 :choice10
+REM -- Advanced Error Scan (CHKDSK) --
 cls
 echo ===============================================
 echo Running advanced error scan on all drives...
@@ -329,8 +399,8 @@ echo All drives scanned.
 pause
 goto menu
 
-
 :choice11
+REM -- Delete Temporary Files (System Optimization) --
 cls
 
 :confirm_loop
@@ -363,8 +433,8 @@ echo Temporary files deleted.
 pause
 goto menu
 
-
 :choice12
+REM -- Advanced Registry Cleanup & Optimization --
 cls
 echo ======================================================
 echo Advanced Registry Cleanup ^& Optimization
@@ -436,6 +506,7 @@ goto menu
 
 REM Only delete safe registry errors
 :delete_safe_entries
+REM -- Delete Only Safe Registry Entries --
 if %safe_count%==0 (
     echo No safe entries found for deletion.
     pause
@@ -453,6 +524,7 @@ goto menu
 
 REM Review secure entries before deletion
 :review_safe_entries
+REM -- Review Safe Registry Entries Before Deletion --
 cls
 echo Safe to delete registry entries:
 for /L %%i in (1,1,%safe_count%) do echo [%%i] !safe_entries[%%i]!
@@ -467,6 +539,7 @@ goto menu
 
 REM Create a manual backup of the registry
 :create_backup
+REM -- Create Registry Backup --
 set backupName=RegistryBackup_%date:~-4,4%-%date:~-7,2%-%date:~-10,2%_%time:~0,2%-%time:~3,2%.reg
 echo Creating registry backup: %backupFolder%\%backupName%...
 reg export HKLM "%backupFolder%\%backupName%" /y
@@ -476,6 +549,7 @@ goto menu
 
 REM Restore registry backup
 :restore_backup
+REM -- Restore Registry Backup --
 echo Available backups:
 dir /b "%backupFolder%\*.reg"
 echo Enter the name of the backup to restore:
@@ -492,6 +566,7 @@ goto menu
 
 REM Scan for corrupt registry entries
 :scan_registry
+REM -- Scan for Corrupt Registry Entries --
 cls
 echo Scanning for corrupt registry entries...
 sfc /scannow
@@ -500,8 +575,9 @@ echo Registry scan complete. If errors were found, restart your PC.
 pause
 goto menu
 
-
+REM =================== SECTION 5: SUPPORT ===================
 :choice13
+REM -- Contact and Support Information --
 cls
 echo.
 echo ==================================================
@@ -518,69 +594,14 @@ pause >nul
 goto menu
 
 :choice14
+REM -- Exit --
 cls
 echo Exiting script...
 exit
 
-
-:custom_dns
-cls
-echo ===============================================
-echo           Enter your custom DNS
-echo ===============================================
-
-:get_dns
-echo.
-set /p customDNS1=Enter primary DNS: 
-set /p customDNS2=Enter secondary DNS (optional): 
-
-cls
-echo ===============================================
-echo           Validating DNS addresses...
-echo ===============================================
-ping -n 1 %customDNS1% >nul
-if errorlevel 1 (
-    echo [!] ERROR: The primary DNS "%customDNS1%" is not reachable.
-    echo Please enter a valid DNS address.
-    pause
-    cls
-    goto get_dns
-)
-
-if not "%customDNS2%"=="" (
-    ping -n 1 %customDNS2% >nul
-    if errorlevel 1 (
-        echo [!] ERROR: The secondary DNS "%customDNS2%" is not reachable.
-        echo It will be skipped.
-        set "customDNS2="
-        pause
-    )
-)
-
-cls
-echo ===============================================
-echo     Setting DNS for Wi-Fi and Ethernet...
-echo ===============================================
-
-REM Wi-Fi
-netsh interface ip set dns name="Wi-Fi" static %customDNS1%
-if not "%customDNS2%"=="" netsh interface ip add dns name="Wi-Fi" %customDNS2% index=2
-
-REM Ethernet
-netsh interface ip set dns name="Ethernet" static %customDNS1%
-if not "%customDNS2%"=="" netsh interface ip add dns name="Ethernet" %customDNS2% index=2
-
-echo.
-echo ===============================================
-echo      DNS has been successfully updated:
-echo        Primary: %customDNS1%
-if not "%customDNS2%"=="" echo        Secondary: %customDNS2%
-echo ===============================================
-pause
-goto choice5
-
-
+REM =================== SECTION 6: UTILITIES & EXTRAS ===================
 :choice20
+REM -- Show Installed Drivers --
 cls
 echo ===============================================
 echo     Saving Installed Driver Report to Desktop
@@ -593,6 +614,7 @@ pause
 goto menu
 
 :choice21
+REM -- Windows Update Repair Tool --
 cls
 echo ===============================================
 echo      Windows Update Repair Tool [Admin]
@@ -619,8 +641,8 @@ echo Windows Update components reset.
 pause
 goto menu
 
-
 :choice22
+REM -- Generate Full System Report --
 cls
 echo ===============================================
 echo      Generating Separated System Reports...
@@ -658,8 +680,8 @@ echo - Driver_List_%today%.txt
 pause
 goto menu
 
-
 :choice23
+REM -- Windows Update Utility & Service Reset --
 cls
 echo ======================================================
 echo            Windows Update Utility ^& Service Reset
@@ -682,6 +704,7 @@ pause
 goto choice23
 
 :reset_windows_update
+REM -- Reset Windows Update Services --
 cls
 echo ======================================================
 echo     Resetting Windows Update ^& Related Services
@@ -708,6 +731,7 @@ pause
 goto menu
 
 :choice24
+REM -- View Network Routing Table [Advanced] --
 cls
 echo ===============================================
 echo      View Network Routing Table  [Advanced]
@@ -728,7 +752,7 @@ if "%routeopt%"=="1" (
     goto menu
 )
 
-iif "%routeopt%"=="2" (
+if "%routeopt%"=="2" (
     for /f "tokens=2 delims==." %%i in ('"wmic os get LocalDateTime /value"') do set dt=%%i
     set FILE=%USERPROFILE%\Desktop\routing_table_%dt:~0,4%-%dt:~4,2%-%dt:~6,2%.txt
     cls
