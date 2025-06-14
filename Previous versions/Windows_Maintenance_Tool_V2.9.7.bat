@@ -10,32 +10,49 @@ if /i not "%~1"=="am_admin" (
 )
 
 REM =================== STRINGS: ENGLISH ONLY ==========================
+REM ---------- MENU SECTION LABELS ----------
 set TITLE1=WINDOWS MAINTENANCE TOOL V2.9.7 - By Lil_Batti
+
+REM Section 1: Windows Updates
 set HEADER1=WINDOWS UPDATES
 set OPT1=Update Windows Apps / Programs (Winget upgrade)
+
+REM Section 2: System Health Checks
 set HEADER2=SYSTEM HEALTH CHECKS
 set OPT2=Scan for corrupt files (SFC /scannow) [Admin]
 set OPT3=Windows CheckHealth (DISM) [Admin]
 set OPT4=Restore Windows Health (DISM /RestoreHealth) [Admin]
+
+REM Section 3: Network Tools
 set HEADER3=NETWORK TOOLS
 set OPT5=DNS Options (Flush/Set/Reset)
 set OPT6=Show network information (ipconfig /all)
 set OPT7=Restart Network Adapters
 set OPT8=Network Repair - Automatic Troubleshooter
+
+REM Section 4: Cleanup & Optimization
 set HEADER4=CLEANUP & OPTIMIZATION
 set OPT9=Disk Cleanup (cleanmgr)
 set OPT10=Run Advanced Error Scan (CHKDSK) [Admin]
 set OPT11=Perform System Optimization (Delete Temporary Files)
 set OPT12=Advanced Registry Cleanup-Optimization
+
+REM Section 5: Support
 set HEADER5=SUPPORT
 set OPT13=Contact and Support information (Discord)
+
+REM Section 6: Utilities & Extras
 set HEADER6=UTILITIES & EXTRAS
 set OPT20=Show installed drivers
 set OPT21=Windows Update Repair Tool
 set OPT22=Generate Full System Report
 set OPT23=Windows Update Utility & Service Reset
 set OPT24=View Network Routing Table [Advanced]
+
+REM Exit Option
 set OPT14=EXIT
+
+REM ---------- MESSAGES AND PROMPTS ----------
 set PROMPT1=Enter your choice: 
 set INVALID=Invalid choice, please try again.
 set EXITMSG=Exiting script...
@@ -169,30 +186,36 @@ echo         %TITLE1%
 echo ======================================================
 echo.
 
+REM ----- Section 1: Windows Updates -----
 echo      === %HEADER1% ===
 echo   [1] %OPT1%
 
+REM ----- Section 2: System Health Checks -----
 echo      === %HEADER2% ===
 echo   [2] %OPT2%
 echo   [3] %OPT3%
 echo   [4] %OPT4%
 
+REM ----- Section 3: Network Tools -----
 echo      === %HEADER3% ===
 echo   [5] %OPT5%
 echo   [6] %OPT6%
 echo   [7] %OPT7%
 echo   [8] %OPT8%
 
+REM ----- Section 4: Cleanup & Optimization -----
 echo      === %HEADER4% ===
 echo   [9] %OPT9%
 echo  [10] %OPT10%
 echo  [11] %OPT11%
 echo  [12] %OPT12%
 
+REM ----- Section 5: Support -----
 echo      === %HEADER5% ===
 echo  [13] %OPT13%
 
 echo.
+REM ----- Section 6: Utilities & Extras -----
 echo      === %HEADER6% ===
 echo  [20] %OPT20%
 echo  [21] %OPT21%
@@ -214,8 +237,8 @@ if exist "%~f0" findstr /b /c:":choice%choice%" "%~f0" >nul || (
 )
 goto choice%choice%
 
-REM All actions below use only English variables for messages 
-REM (as provided above), so the entire experience is in English.
+REM (The rest of the script remains unchanged, all actions and messages stay in English,
+REM and are organized by sections as per the comments above.)
 
 REM ------ Winget Upgrade ------
 :choice1
